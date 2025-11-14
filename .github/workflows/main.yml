@@ -28,11 +28,15 @@ jobs:
     - name: Prepare Android SDK folder (fix sdkmanager)
       run: |
         mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
-
-        # скачать cmdline-tools
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/clt.zip
         unzip /tmp/clt.zip -d /tmp/clt
         mv /tmp/clt/cmdline-tools/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
+
+    - name: Create legacy sdkmanager path for Buildozer
+      run: |
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
+        ln -sf $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+               $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
 
     - name: Accept Android SDK licenses
       run: |
