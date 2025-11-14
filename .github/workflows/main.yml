@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout
       uses: actions/checkout@v4
 
@@ -18,14 +19,14 @@ jobs:
           python3 python3-pip python3-setuptools git zip \
           libffi-dev libssl-dev libglu1-mesa-dev pkg-config \
           libgl1-mesa-dev libegl1-mesa-dev \
-          openjdk-17-jdk unzip
+          openjdk-17-jdk unzip autoconf2.69 libtool
 
     - name: Install buildozer & Cython
       run: |
         pip3 install --upgrade pip
         pip3 install buildozer cython
 
-    - name: Prepare Android SDK folder (fix sdkmanager)
+    - name: Prepare Android SDK (cmdline-tools)
       run: |
         mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/clt.zip
@@ -40,15 +41,18 @@ jobs:
 
     - name: Accept Android SDK licenses
       run: |
-        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses
+        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+          --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses
 
-    - name: Install build-tools & platform-tools
+    - name: Install Android build-tools
       run: |
-        $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
+        $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+          --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
           "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
     - name: Build APK
       run: |
+        export AUTOCONF=autoconf2.69
         buildozer android debug
 
     - name: Upload APK artifact
