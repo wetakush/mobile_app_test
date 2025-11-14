@@ -20,8 +20,11 @@ main.py
 version = 0.1
 
 # Требуемые библиотеки
-requirements = python3, kivy
-
+requirements = python3,kivy,openssl,libffi
+android.api = 33
+android.ndk = 25b
+android.minapi = 21
+android.archs = arm64-v8a
 # Разрешения Android (минимально)
 android.permissions = INTERNET
 
@@ -35,3 +38,4 @@ package.format = apk
 [buildozer]
 log_level = 2
 warn_on_root = 1
+
