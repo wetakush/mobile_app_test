@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout
       uses: actions/checkout@v4
 
@@ -18,35 +19,44 @@ jobs:
           python3 python3-pip python3-setuptools git zip \
           libffi-dev libssl-dev libglu1-mesa-dev pkg-config \
           libgl1-mesa-dev libegl1-mesa-dev \
-          openjdk-17-jdk
+          openjdk-17-jdk unzip
 
     - name: Install buildozer & Cython
       run: |
         pip3 install --upgrade pip
         pip3 install buildozer cython
 
-    - name: Install Android SDK/NDK
-      run: |
-        sudo apt install -y unzip
-        buildozer android update
-
-    - name: Accept Android SDK licenses
+    - name: Prepare Android SDK manually
       env:
-        ANDROID_HOME: ${{ env.HOME }}/.buildozer/android/platform/android-sdk
+        ANDROID_HOME: ${{ github.workspace }}/android-sdk
       run: |
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        mkdir -p $ANDROID_HOME/cmdline-tools
+        cd $ANDROID_HOME/cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip commandlinetools-linux-11076708_latest.zip
+        mv cmdline-tools latest
 
-    - name: Install build-tools
+    - name: Accept licenses
       env:
-        ANDROID_HOME: ${{ env.HOME }}/.buildozer/android/platform/android-sdk
+        ANDROID_HOME: ${{ github.workspace }}/android-sdk
       run: |
-        $ANDROID_HOME/tools/bin/sdkmanager "build-tools;36.1.0"
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+    - name: Install build-tools + platforms
+      env:
+        ANDROID_HOME: ${{ github.workspace }}/android-sdk
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-34"
+
+    - name: Set ANDROID_HOME for Buildozer
+      run: echo "export ANDROID_HOME=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
 
     - name: Build APK
       run: |
+        export ANDROID_HOME=${{ github.workspace }}/android-sdk
         buildozer android debug
 
-    - name: Upload APK artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-apk
