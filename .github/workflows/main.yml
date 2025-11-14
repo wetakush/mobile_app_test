@@ -31,12 +31,16 @@ jobs:
         buildozer android update
 
     - name: Accept Android SDK licenses
+      env:
+        ANDROID_HOME: ${{ env.HOME }}/.buildozer/android/platform/android-sdk
       run: |
-        yes | ${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
-    - name: Install required build-tools
+    - name: Install build-tools
+      env:
+        ANDROID_HOME: ${{ env.HOME }}/.buildozer/android/platform/android-sdk
       run: |
-        ${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0"
+        $ANDROID_HOME/tools/bin/sdkmanager "build-tools;36.1.0"
 
     - name: Build APK
       run: |
