@@ -8,11 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install system deps
+    - name: Install system dependencies
       run: |
         sudo apt update
         sudo apt install -y \
@@ -26,37 +25,29 @@ jobs:
         pip3 install --upgrade pip
         pip3 install buildozer cython
 
-    - name: Prepare Android SDK manually
-      env:
-        ANDROID_HOME: ${{ github.workspace }}/android-sdk
+    - name: Prepare Android SDK folder (fix sdkmanager)
       run: |
-        mkdir -p $ANDROID_HOME/cmdline-tools
-        cd $ANDROID_HOME/cmdline-tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip commandlinetools-linux-11076708_latest.zip
-        mv cmdline-tools latest
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
 
-    - name: Accept licenses
-      env:
-        ANDROID_HOME: ${{ github.workspace }}/android-sdk
+        # скачать cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/clt.zip
+        unzip /tmp/clt.zip -d /tmp/clt
+        mv /tmp/clt/cmdline-tools/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
+
+    - name: Accept Android SDK licenses
       run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses
 
-    - name: Install build-tools + platforms
-      env:
-        ANDROID_HOME: ${{ github.workspace }}/android-sdk
+    - name: Install build-tools & platform-tools
       run: |
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-34"
-
-    - name: Set ANDROID_HOME for Buildozer
-      run: echo "export ANDROID_HOME=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
+        $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
+          "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
     - name: Build APK
       run: |
-        export ANDROID_HOME=${{ github.workspace }}/android-sdk
         buildozer android debug
 
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-apk
