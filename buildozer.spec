@@ -15,11 +15,13 @@ requirements = python3,kivy,openssl
 android.api = 33
 android.minapi = 21
 
-# Архитектуры
 android.archs = arm64-v8a, armeabi-v7a
 
 android.permissions = INTERNET
+
 package.format = apk
+
+p4a.local_recipes = recipes
 
 [buildozer]
 log_level = 2
