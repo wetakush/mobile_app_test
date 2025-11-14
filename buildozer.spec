@@ -6,18 +6,20 @@ title = FoodOptionsApp
 # Имя пакета
 package.name = foodoptions
 
-# Домен (можно любой)
+# Домен (любое значение)
 package.domain = org.test
 
-# Главный файл приложения
+# Корневая папка и файлы приложения
 source.dir = .
 source.include_exts = py
+
+# Главный файл
 main.py
 
 # Версия
 version = 0.1
 
-# Требуемые библиотеки
+# Python-библиотеки
 requirements = python3,kivy,openssl,libffi
 
 # Настройки Android
@@ -25,10 +27,10 @@ android.api = 33
 android.ndk = 25b
 android.minapi = 21
 
-# Архитектуры (ОБЯЗАТЕЛЬНО только тут и один раз)
+# Архитектуры (всего ОДИН раз!)
 android.archs = arm64-v8a, armeabi-v7a
 
-# Разрешения Android
+# Разрешения
 android.permissions = INTERNET
 
 # Формат сборки
